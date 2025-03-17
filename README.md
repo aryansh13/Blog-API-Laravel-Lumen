@@ -88,6 +88,14 @@ Berikut adalah langkah-langkah untuk menginstal dan menjalankan proyek ini di li
    ```
 
 10. Contoh
-    Metode : POST
-    URL : ``` http://localhost:8000/posts ```
+    - Metode : POST
+    - URL : ``` http://localhost:8000/posts ```
+    - Headers : Key ``` Content-Type ``` , Value ``` application/json ```
+    - Body : Pilih ``` raw ``` dan tipe ``` JSON ```, kemudian masukkan:
+    ```
+      {
+         "title": "Artikel Pertama",
+         "content": "Ini adalah konten artikel pertama saya."
+      }
+    ```
 
