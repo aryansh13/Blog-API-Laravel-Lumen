@@ -87,3 +87,7 @@ Berikut adalah langkah-langkah untuk menginstal dan menjalankan proyek ini di li
    http://localhost:8000/posts
    ```
 
+10. Contoh
+    Metode : POST
+    URL : ``` http://localhost:8000/posts ```
+
