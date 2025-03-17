@@ -38,8 +38,8 @@ Berikut adalah langkah-langkah untuk menginstal dan menjalankan proyek ini di li
 ### Langkah Instalasi
 1. Clone repository ini:
    ```bash
-   git clone https://github.com/username/blog-api.git
-   cd blog-api
+   git clone https://github.com/aryansh13/Blog-API-Laravel-Lumen.git
+   cd Blog-API-Laravel-Lumen
    ```
 
 2. Install dependensi dengan Composer:
@@ -57,9 +57,9 @@ Berikut adalah langkah-langkah untuk menginstal dan menjalankan proyek ini di li
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
    DB_PORT=3306
-   DB_DATABASE=blog_api
+   DB_DATABASE=db_blog_api
    DB_USERNAME=root
-   DB_PASSWORD=password_anda
+   DB_PASSWORD=
    ```
 
 5. Buat database baru:
