@@ -17,6 +17,15 @@
 //     return $router->app->version();
 // });
 
+// User routes
+$router->group(['prefix' => 'users'], function () use ($router) {
+    $router->post('/', 'UserController@store');
+    $router->get('/', 'UserController@index');
+    $router->get('/{id}', 'UserController@show');
+    $router->patch('/{id}', 'UserController@update');
+    $router->delete('/{id}', 'UserController@destroy');
+});
+
 $router->group(['prefix' => 'posts'], function () use ($router) {
     $router->post('/', 'PostController@store');
     $router->get('/', 'PostController@index');

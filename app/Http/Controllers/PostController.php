@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -11,16 +12,25 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'title' => 'required',
-            'content' => 'required'
+            'title' => 'required|max:100',
+            'content' => 'required',
+            'status' => 'in:draft,published',
+            'user_id' => 'required|exists:users,id'
         ]);
 
-        $post = Post::create($request->all());
-        
+        $data = $request->all();
+        if (!isset($data['status'])) {
+            $data['status'] = 'draft';
+        }
+
+        $post = Post::create($data);
+
         return response()->json([
             'id' => $post->id,
             'title' => $post->title,
+            'status' => $post->status,
             'content' => $post->content,
+            'user_id' => $post->user_id,
             'link' => "/posts/{$post->id}"
         ], 201);
     }
@@ -28,16 +38,22 @@ class PostController extends Controller
     // Get Single Post
     public function show($id)
     {
-        $post = Post::find($id);
-        
+        $post = Post::with('user')->find($id);
+
         if (!$post) {
             return response()->json(['message' => 'Post not found'], 404);
         }
-        
+
         return response()->json([
             'id' => $post->id,
             'title' => $post->title,
+            'status' => $post->status,
             'content' => $post->content,
+            'user_id' => $post->user_id,
+            'user' => [
+                'id' => $post->user->id,
+                'name' => $post->user->name
+            ],
             'link' => "/posts/{$post->id}"
         ], 200);
     }
@@ -46,26 +62,43 @@ class PostController extends Controller
     public function update(Request $request, $id)
     {
         $post = Post::find($id);
-        
+
         if (!$post) {
             return response()->json(['message' => 'Post not found'], 404);
         }
-        
+
+        $this->validate($request, [
+            'title' => 'sometimes|max:100',
+            'status' => 'sometimes|in:draft,published',
+            'content' => 'sometimes',
+            'user_id' => 'sometimes|exists:users,id'
+        ]);
+
         // Only update fields that are provided
         if ($request->has('title')) {
             $post->title = $request->title;
         }
-        
+
         if ($request->has('content')) {
             $post->content = $request->content;
         }
-        
+
+        if ($request->has('status')) {
+            $post->status = $request->status;
+        }
+
+        if ($request->has('user_id')) {
+            $post->user_id = $request->user_id;
+        }
+
         $post->save();
-        
+
         return response()->json([
             'id' => $post->id,
             'title' => $post->title,
+            'status' => $post->status,
             'content' => $post->content,
+            'user_id' => $post->user_id,
             'link' => "/posts/{$post->id}"
         ], 200);
     }
@@ -74,13 +107,13 @@ class PostController extends Controller
     public function destroy($id)
     {
         $post = Post::find($id);
-        
+
         if (!$post) {
             return response()->json(['message' => 'Post not found'], 404);
         }
-        
+
         $post->delete();
-        
+
         return response()->json([
             'success' => true,
             'deleted_id' => $id
@@ -92,24 +125,43 @@ class PostController extends Controller
     {
         $limit = $request->input('limit', 10);
         $page = $request->input('page', 1);
+        $status = $request->input('status', null);
+        $userId = $request->input('user_id', null);
         
-        $posts = Post::skip(($page - 1) * $limit)
-                     ->take($limit)
-                     ->get();
+        $query = Post::query();
         
-        $totalCount = Post::count();
+        if ($status) {
+            $query->where('status', $status);
+        }
+        
+        if ($userId) {
+            $query->where('user_id', $userId);
+        }
+
+        $posts = $query->with('user')
+            ->skip(($page - 1) * $limit)
+            ->take($limit)
+            ->get();
+
+        $totalCount = $query->count();
         $lastPage = ceil($totalCount / $limit);
-        
+
         $data = [];
         foreach ($posts as $post) {
             $data[] = [
                 'id' => $post->id,
                 'title' => $post->title,
+                'status' => $post->status,
                 'content' => $post->content,
+                'user_id' => $post->user_id,
+                'user' => [
+                    'id' => $post->user->id,
+                    'name' => $post->user->name
+                ],
                 'link' => "/posts/{$post->id}"
             ];
         }
-        
+
         return response()->json([
             'data' => $data,
             'total_count' => $totalCount,
