@@ -120,6 +120,50 @@ class PostController extends Controller
         ], 200);
     }
 
+    // Publish Post (Editor only)
+    public function publish($id)
+    {
+        $post = Post::find($id);
+
+        if (!$post) {
+            return response()->json(['message' => 'Post not found'], 404);
+        }
+
+        $post->status = 'published';
+        $post->save();
+
+        return response()->json([
+            'id' => $post->id,
+            'title' => $post->title,
+            'status' => $post->status,
+            'content' => $post->content,
+            'user_id' => $post->user_id,
+            'link' => "/posts/{$post->id}"
+        ], 200);
+    }
+
+    // Unpublish Post (Editor only)
+    public function unpublish($id)
+    {
+        $post = Post::find($id);
+
+        if (!$post) {
+            return response()->json(['message' => 'Post not found'], 404);
+        }
+
+        $post->status = 'draft';
+        $post->save();
+
+        return response()->json([
+            'id' => $post->id,
+            'title' => $post->title,
+            'status' => $post->status,
+            'content' => $post->content,
+            'user_id' => $post->user_id,
+            'link' => "/posts/{$post->id}"
+        ], 200);
+    }
+
     // List All Posts
     public function index(Request $request)
     {

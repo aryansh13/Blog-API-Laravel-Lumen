@@ -20,7 +20,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var string[]
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'role'
     ];
 
     /**
@@ -31,6 +31,30 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     protected $hidden = [
         'password',
     ];
+    
+    /**
+     * Check if user is a reader
+     */
+    public function isReader()
+    {
+        return $this->role === 'reader';
+    }
+
+    /**
+     * Check if user is a writer
+     */
+    public function isWriter()
+    {
+        return $this->role === 'writer';
+    }
+
+    /**
+     * Check if user is an editor
+     */
+    public function isEditor()
+    {
+        return $this->role === 'editor';
+    }
     
     /**
      * Get all posts for the user.

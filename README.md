@@ -1,52 +1,48 @@
-# Blog API with Laravel Lumen
-Sebuah REST API untuk blog sederhana yang dibangun menggunakan framework Laravel Lumen. API ini menyediakan endpoint untuk mengelola artikel blog (posts) dan komentar (comments) dengan mengimplementasikan prinsip-prinsip RESTful.
+# Blog API dengan Laravel Lumen
 
-## Fitur
-API ini memiliki beberapa fitur utama:
+Sebuah REST API untuk blog yang dibangun menggunakan framework Laravel Lumen. API ini menyediakan endpoint untuk mengelola artikel blog (posts) dan komentar (comments) dengan sistem role-based access control (RBAC).
 
-- **Authentication**: Login dan register user dengan token-based authentication
-- **Post Management**: Endpoint untuk membuat, membaca, mengupdate, dan menghapus artikel blog.
-- **Comment Management**: Endpoint untuk membuat, membaca, mengupdate, dan menghapus komentar pada artikel blog.
+## Fitur Utama
 
-## Authentication
+### 1. Sistem Autentikasi
+- Register user baru
+- Login dengan email dan password
+- Token-based authentication menggunakan Laravel Sanctum
+- Logout (invalidate token)
+- Get user profile
 
-This API uses token-based authentication. To access protected endpoints, you need to:
+### 2. Role-Based Access Control (RBAC)
+Sistem memiliki 3 role dengan hak akses berbeda:
 
-1. Register a new account or login with existing account to get an API token
-2. Include the token in your requests using one of these methods:
-   - In the Authorization header: `Authorization: Bearer YOUR_TOKEN`
-   - As a query parameter: `?api_token=YOUR_TOKEN`
+#### Reader (Default)
+- Dapat membaca semua post dan komentar
+- Dapat membuat komentar
+- Tidak dapat membuat atau mengedit post
 
-## Endpoint API
+#### Writer
+- Memiliki semua hak akses reader
+- Dapat membuat post baru
+- Dapat mengedit dan menghapus post mereka sendiri
+- Post default status 'draft'
 
-### Authentication Endpoints
-| Method | URL                 | Deskripsi                                    |
-|--------|---------------------|----------------------------------------------|
-| POST   | `/auth/register`    | Mendaftarkan user baru                       |
-| POST   | `/auth/login`       | Login dan mendapatkan API token              |
-| POST   | `/auth/logout`      | Logout (invalidate token) - Auth required    |
-| GET    | `/auth/me`          | Mendapatkan data user saat ini - Auth required |
+#### Editor
+- Memiliki semua hak akses writer
+- Dapat mengedit dan menghapus semua post
+- Dapat publish/unpublish post
+- Dapat mengelola user (CRUD)
 
-### Posts Endpoints
-| Method | URL            | Deskripsi                                      |
-|--------|--------------|--------------------------------|
-| POST   | `/posts`      | Membuat artikel blog baru (Auth required)    |
-| GET    | `/posts`      | Mendapatkan daftar semua artikel blog dengan pagination |
-| GET    | `/posts/{id}` | Mendapatkan detail satu artikel blog berdasarkan ID |
-| PATCH  | `/posts/{id}` | Mengupdate artikel blog berdasarkan ID (Auth required) |
-| DELETE | `/posts/{id}` | Menghapus artikel blog berdasarkan ID (Auth required) |
+### 3. Post Management
+- Create, read, update, delete post
+- Status post (draft/published)
+- Pagination dan filtering
+- Relasi dengan user dan komentar
 
-### Comments Endpoints
-| Method | URL                       | Deskripsi |
-|--------|---------------------------|-------------|
-| POST   | `/posts/{id}/comments`    | Membuat komentar baru pada artikel blog (Auth required) |
-| GET    | `/posts/{id}/comments`    | Mendapatkan daftar semua komentar untuk artikel blog tertentu |
-| GET    | `/comments/{id}`          | Mendapatkan detail satu komentar berdasarkan ID |
-| PATCH  | `/comments/{id}`          | Mengupdate komentar berdasarkan ID (Auth required) |
-| DELETE | `/comments/{id}`          | Menghapus komentar berdasarkan ID (Auth required) |
+### 4. Comment Management
+- Create, read, update, delete komentar
+- Relasi dengan post dan user
+- Pagination
 
-## Instalasi dan Konfigurasi
-Berikut adalah langkah-langkah untuk menginstal dan menjalankan proyek ini di lingkungan lokal:
+## Instalasi
 
 ### Prasyarat
 - PHP >= 7.3
@@ -55,153 +51,239 @@ Berikut adalah langkah-langkah untuk menginstal dan menjalankan proyek ini di li
 - Git
 
 ### Langkah Instalasi
-1. Clone repository ini:
-   ```bash
-   git clone https://github.com/aryansh13/Blog-API-Laravel-Lumen.git
-   cd Blog-API-Laravel-Lumen
-   ```
+1. Clone repository:
+```bash
+git clone [repository-url]
+cd [project-directory]
+```
 
-2. Install dependensi dengan Composer:
-   ```bash
-   composer install
-   ```
+2. Install dependencies:
+```bash
+composer install
+```
 
-3. Salin file `.env.example` menjadi `.env`:
-   ```bash
-   cp .env.example .env
-   ```
+3. Copy file .env:
+```bash
+cp .env.example .env
+```
 
-4. Konfigurasi koneksi database di file `.env`:
-   ```ini
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=db_blog_api
-   DB_USERNAME=root
-   DB_PASSWORD=
-   ```
+4. Konfigurasi database di .env:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=blog_api
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-5. Buat database baru:
-   ```sql
-   CREATE DATABASE blog_api;
-   ```
+5. Jalankan migrasi:
+```bash
+php artisan migrate
+```
 
-6. Jalankan migrasi database:
-   ```bash
-   php artisan migrate
-   ```
+6. Jalankan server:
+```bash
+php -S localhost:8000 -t public
+```
 
-7. Set permission folder (untuk Linux/Mac):
-   ```bash
-   chmod -R 777 storage
-   ```
+## Penggunaan API
 
-8. Jalankan server lokal:
-   ```bash
-   php -S localhost:8000 -t public
-   ```
+### 1. Autentikasi
 
-9. Akses API melalui browser atau Postman:
-   ```
-   http://localhost:8000/posts
-   ```
+#### Register User Baru
+```http
+POST /auth/register
+Content-Type: application/json
 
-10. Contoh
-    - Metode : POST
-    - URL : ``` http://localhost:8000/posts ```
-    - Headers : Key ``` Content-Type ``` , Value ``` application/json ```
-    - Body : Pilih ``` raw ``` dan tipe ``` JSON ```, kemudian masukkan:
-    ```
-      {
-         "title": "Artikel Pertama",
-         "content": "Ini adalah konten artikel pertama saya."
-      }
-    ```
+{
+    "name": "Test User",
+    "email": "user@example.com",
+    "password": "password123",
+    "password_confirmation": "password123",
+    "role": "writer"  // opsional: reader, writer, atau editor
+}
+```
 
-## Endpoint Guide
+#### Login
+```http
+POST /auth/login
+Content-Type: application/json
 
-### User Management
+{
+    "email": "user@example.com",
+    "password": "password123"
+}
+```
 
-- `POST /users` - Create a new user and get API token
-- `GET /users` - List all users
-- `GET /users/{id}` - View user details
-- `PATCH /users/{id}` - Update user
-- `DELETE /users/{id}` - Delete user
+#### Logout
+```http
+POST /auth/logout
+Authorization: Bearer {token}
+```
 
-### Posts (Protected - Requires Authentication)
+#### Get Profile
+```http
+GET /auth/me
+Authorization: Bearer {token}
+```
 
-- `POST /posts` - Create a new post
-- `PATCH /posts/{id}` - Update post
-- `DELETE /posts/{id}` - Delete post
+### 2. Post Management
 
-### Posts (Public)
+#### Create Post (Writer/Editor)
+```http
+POST /posts
+Authorization: Bearer {token}
+Content-Type: application/json
 
-- `GET /posts` - List all posts
-- `GET /posts/{id}` - View post details
+{
+    "title": "Judul Post",
+    "content": "Konten post...",
+    "status": "draft"  // opsional: draft atau published
+    "user_id": 1
+}
+```
 
-### Comments (Protected - Requires Authentication)
+#### Get All Posts
+```http
+GET /posts?page=1&limit=10&status=published
+```
 
-- `POST /posts/{postId}/comments` - Add comment to a post
-- `PATCH /comments/{id}` - Update comment
-- `DELETE /comments/{id}` - Delete comment
+#### Get Single Post
+```http
+GET /posts/{id}
+```
 
-### Comments (Public)
+#### Update Post (Writer/Editor)
+```http
+PATCH /posts/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
 
-- `GET /posts/{postId}/comments` - List all comments for a post
-- `GET /comments/{id}` - View comment details
+{
+    "title": "Judul Updated",
+    "content": "Konten updated..."
+}
+```
 
-## Testing in Postman
+#### Delete Post (Writer/Editor)
+```http
+DELETE /posts/{id}
+Authorization: Bearer {token}
+```
 
-1. **Register a new user**
-   - Method: POST
-   - URL: `http://localhost/blog/auth/register`
-   - Body (JSON):
-   ```json
-   {
-     "name": "Test User",
-     "email": "user@example.com",
-     "password": "password123"
-   }
-   ```
+#### Publish/Unpublish Post (Editor)
+```http
+PATCH /posts/{id}/publish
+PATCH /posts/{id}/unpublish
+Authorization: Bearer {token}
+```
 
-2. **Login to get API token**
-   - Method: POST
-   - URL: `http://localhost/blog/auth/login`
-   - Body (JSON):
-   ```json
-   {
-     "email": "user@example.com",
-     "password": "password123"
-   }
-   ```
-   - Response will contain your `api_token`
+### 3. Comment Management
 
-3. **Access protected endpoints**
-   - Method: POST
-   - URL: `http://localhost/blog/posts`
-   - Authentication: 
-     - Add header: `Authorization: Bearer YOUR_API_TOKEN`
-     - Or append to URL: `?api_token=YOUR_API_TOKEN`
-   - Body (JSON):
-   ```json
-   {
-     "title": "My First Post",
-     "content": "This is the content of my first post"
-   }
-   ```
+#### Create Comment
+```http
+POST /posts/{postId}/comments
+Authorization: Bearer {token}
+Content-Type: application/json
 
-4. **View your profile**
-   - Method: GET
-   - URL: `http://localhost/blog/auth/me`
-   - Authentication: Add header or query parameter with token
+{
+    "comment": "Isi komentar...",
+    "user_id": 1
+}
+```
 
-5. **Logout**
-   - Method: POST
-   - URL: `http://localhost/blog/auth/logout`
-   - Authentication: Add header or query parameter with token
+#### Get Post Comments
+```http
+GET /posts/{postId}/comments?page=1&limit=10
+```
 
-6. **Access public endpoints**
-   - No authentication required:
-   - Method: GET
-   - URL: `http://localhost/blog/posts`
+#### Update Comment
+```http
+PATCH /comments/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+    "comment": "Komentar updated..."
+}
+```
+
+#### Delete Comment
+```http
+DELETE /comments/{id}
+Authorization: Bearer {token}
+```
+
+### 4. User Management (Editor)
+
+#### Get All Users
+```http
+GET /admin/users?page=1&limit=10
+Authorization: Bearer {token}
+```
+
+#### Get User Details
+```http
+GET /admin/users/{id}
+Authorization: Bearer {token}
+```
+
+#### Update User
+```http
+PATCH /admin/users/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+    "name": "New Name",
+    "email": "new@email.com",
+    "role": "writer"
+}
+```
+
+#### Delete User
+```http
+DELETE /admin/users/{id}
+Authorization: Bearer {token}
+```
+
+## Response Format
+
+Semua response menggunakan format JSON dengan struktur:
+
+```json
+{
+    "data": [...],  // untuk list data
+    "message": "...",  // untuk pesan sukses/error
+    "errors": {...},  // untuk error validasi
+    "pagination": {  // untuk data yang dipaginasi
+        "first_page": "...",
+        "last_page": "...",
+        "page": 1,
+        "next_page": "...",
+        "prev_page": "..."
+    }
+}
+```
+
+## Error Handling
+
+API menggunakan kode status HTTP standar:
+- 200: Success
+- 201: Created
+- 400: Bad Request
+- 401: Unauthorized
+- 403: Forbidden
+- 404: Not Found
+- 422: Validation Error
+- 500: Server Error
+
+## Testing
+
+Untuk testing API, Anda dapat menggunakan Postman atau tools API testing lainnya. Pastikan untuk:
+1. Register user baru
+2. Login untuk mendapatkan token
+3. Gunakan token di header Authorization untuk request yang memerlukan autentikasi
+4. Perhatikan role user untuk akses ke endpoint tertentu
 
