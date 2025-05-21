@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Factory as Auth;
+use Laravel\Sanctum\TransientToken;
+use Illuminate\Support\Carbon;
 
 class Authenticate
 {
@@ -35,10 +37,24 @@ class Authenticate
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        if ($this->auth->guard($guard)->guest()) {
-            return response('Unauthorized.', 401);
+        if ($request->bearerToken()) {
+            $token = $request->bearerToken();
+            $tokenId = explode('|', $token)[0];
+            
+            $tokenModel = \Laravel\Sanctum\PersonalAccessToken::find($tokenId);
+            
+            if ($tokenModel && (!$tokenModel->expires_at || $tokenModel->expires_at > Carbon::now())) {
+                $user = $tokenModel->tokenable;
+                if ($user) {
+                    $this->auth->guard($guard)->setUser($user);
+                    return $next($request);
+                }
+            }
         }
 
-        return $next($request);
+        return response()->json([
+            'message' => 'Unauthorized. Invalid or expired token.',
+            'status' => 401
+        ], 401);
     }
 }

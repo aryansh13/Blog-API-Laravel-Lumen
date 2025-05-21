@@ -17,30 +17,50 @@
 //     return $router->app->version();
 // });
 
-// User routes
+// Auth Routes
+$router->group(['prefix' => 'auth'], function () use ($router) {
+    $router->post('/register', 'AuthController@register');
+    $router->post('/login', 'AuthController@login');
+    $router->post('/logout', ['middleware' => 'auth:api', 'uses' => 'AuthController@logout']);
+    
+    // Protected auth routes
+    $router->group(['middleware' => 'auth:api'], function () use ($router) {
+        $router->get('/me', 'AuthController@me');
+    });
+});
+
+// Legacy User routes - can be removed after migration to auth system
 $router->group(['prefix' => 'users'], function () use ($router) {
-    $router->post('/', 'UserController@store');
     $router->get('/', 'UserController@index');
     $router->get('/{id}', 'UserController@show');
     $router->patch('/{id}', 'UserController@update');
     $router->delete('/{id}', 'UserController@destroy');
 });
 
-$router->group(['prefix' => 'posts'], function () use ($router) {
+// Protected Post routes
+$router->group(['prefix' => 'posts', 'middleware' => 'auth:api'], function () use ($router) {
     $router->post('/', 'PostController@store');
-    $router->get('/', 'PostController@index');
-    $router->get('/{id}', 'PostController@show');
     $router->patch('/{id}', 'PostController@update');
     $router->delete('/{id}', 'PostController@destroy');
     
-    // Comment routes nested under posts
+    // Protected Comment routes nested under posts
     $router->post('/{postId}/comments', 'CommentController@store');
+});
+
+// Public Post routes (read-only)
+$router->group(['prefix' => 'posts'], function () use ($router) {
+    $router->get('/', 'PostController@index');
+    $router->get('/{id}', 'PostController@show');
     $router->get('/{postId}/comments', 'CommentController@index');
 });
 
-// Comment routes
-$router->group(['prefix' => 'comments'], function () use ($router) {
-    $router->get('/{id}', 'CommentController@show');
+// Protected Comment routes
+$router->group(['prefix' => 'comments', 'middleware' => 'auth:api'], function () use ($router) {
     $router->patch('/{id}', 'CommentController@update');
     $router->delete('/{id}', 'CommentController@destroy');
+});
+
+// Public Comment routes (read-only)
+$router->group(['prefix' => 'comments'], function () use ($router) {
+    $router->get('/{id}', 'CommentController@show');
 });

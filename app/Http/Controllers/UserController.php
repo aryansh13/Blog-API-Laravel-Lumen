@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -21,12 +22,14 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
+        $user->api_token = Str::random(60);
         $user->save();
 
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
+            'api_token' => $user->api_token,
             'link' => "/users/{$user->id}"
         ], 201);
     }
