@@ -33,19 +33,27 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     ];
     
     /**
-     * Check if user is a reader
+     * Check if user is an admin
      */
-    public function isReader()
+    public function isAdmin()
     {
-        return $this->role === 'reader';
+        return $this->role === 'admin';
     }
 
     /**
-     * Check if user is a writer
+     * Check if user is a penulis
      */
-    public function isWriter()
+    public function isPenulis()
     {
-        return $this->role === 'writer';
+        return $this->role === 'penulis';
+    }
+
+    /**
+     * Check if user is a pembaca
+     */
+    public function isPembaca()
+    {
+        return $this->role === 'pembaca';
     }
 
     /**

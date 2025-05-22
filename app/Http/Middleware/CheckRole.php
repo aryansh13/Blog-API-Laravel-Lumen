@@ -23,15 +23,25 @@ class CheckRole
 
         $user = $request->user();
         
+        // Admin memiliki akses ke semua
+        if ($user->isAdmin()) {
+            return $next($request);
+        }
+        
         switch ($role) {
-            case 'writer':
-                if (!$user->isWriter() && !$user->isEditor()) {
-                    return response()->json(['message' => 'Access denied. Writer role required.'], 403);
+            case 'penulis':
+                if (!$user->isPenulis() && !$user->isAdmin()) {
+                    return response()->json(['message' => 'Access denied. Penulis role required.'], 403);
                 }
                 break;
             case 'editor':
-                if (!$user->isEditor()) {
+                if (!$user->isEditor() && !$user->isAdmin()) {
                     return response()->json(['message' => 'Access denied. Editor role required.'], 403);
+                }
+                break;
+            case 'pembaca':
+                if (!$user->isPembaca() && !$user->isAdmin()) {
+                    return response()->json(['message' => 'Access denied. Pembaca role required.'], 403);
                 }
                 break;
             default:

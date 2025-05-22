@@ -12,33 +12,40 @@ Sebuah REST API untuk blog yang dibangun menggunakan framework Laravel Lumen. AP
 - Get user profile
 
 ### 2. Role-Based Access Control (RBAC)
-Sistem memiliki 3 role dengan hak akses berbeda:
+Sistem memiliki 4 role dengan hak akses berbeda:
 
-#### Reader (Default)
-- Dapat membaca semua post dan komentar
-- Dapat membuat komentar
-- Tidak dapat membuat atau mengedit post
+#### Admin
+- Memiliki akses penuh ke semua fitur
+- Dapat melakukan semua operasi (GET, POST, PUT, DELETE)
+- Dapat mengelola user dan role
 
-#### Writer
-- Memiliki semua hak akses reader
-- Dapat membuat post baru
-- Dapat mengedit dan menghapus post mereka sendiri
-- Post default status 'draft'
+#### Penulis
+- Dapat membuat post baru (POST)
+- Dapat membuat komentar (POST)
+- Dapat membaca post dan komentar (GET)
+
+#### Pembaca
+- Hanya dapat membaca post dan komentar (GET)
+- Tidak dapat membuat atau mengedit konten
 
 #### Editor
-- Memiliki semua hak akses writer
-- Dapat mengedit dan menghapus semua post
-- Dapat publish/unpublish post
-- Dapat mengelola user (CRUD)
+- Dapat mengedit post (PUT)
+- Dapat mengedit komentar (PUT)
+- Dapat membaca semua konten (GET)
 
 ### 3. Post Management
-- Create, read, update, delete post
-- Status post (draft/published)
+- Create (POST) - Penulis
+- Read (GET) - Semua role
+- Update (PUT) - Editor
+- Delete (DELETE) - Admin
 - Pagination dan filtering
 - Relasi dengan user dan komentar
 
 ### 4. Comment Management
-- Create, read, update, delete komentar
+- Create (POST) - Penulis
+- Read (GET) - Semua role
+- Update (PUT) - Editor
+- Delete (DELETE) - Admin
 - Relasi dengan post dan user
 - Pagination
 
@@ -101,7 +108,7 @@ Content-Type: application/json
     "email": "user@example.com",
     "password": "password123",
     "password_confirmation": "password123",
-    "role": "writer"  // opsional: reader, writer, atau editor
+    "role": "writer"  // opsional: reader, writer, editor, dan admin
 }
 ```
 

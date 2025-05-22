@@ -39,21 +39,25 @@ $router->group(['prefix' => 'users'], function () use ($router) {
 
 // Protected Post routes
 $router->group(['prefix' => 'posts', 'middleware' => 'auth:api'], function () use ($router) {
-    // Writer routes
-    $router->group(['middleware' => 'role:writer'], function () use ($router) {
+    // Penulis routes - POST
+    $router->group(['middleware' => 'role:penulis'], function () use ($router) {
         $router->post('/', 'PostController@store');
-        $router->patch('/{id}', 'PostController@update');
+    });
+    
+    // Editor routes - PUT
+    $router->group(['middleware' => 'role:editor'], function () use ($router) {
+        $router->put('/{id}', 'PostController@update');
+    });
+    
+    // Admin routes - DELETE
+    $router->group(['middleware' => 'role:admin'], function () use ($router) {
         $router->delete('/{id}', 'PostController@destroy');
     });
     
-    // Editor routes
-    $router->group(['middleware' => 'role:editor'], function () use ($router) {
-        $router->patch('/{id}/publish', 'PostController@publish');
-        $router->patch('/{id}/unpublish', 'PostController@unpublish');
-    });
-    
     // Protected Comment routes nested under posts
-    $router->post('/{postId}/comments', 'CommentController@store');
+    $router->group(['middleware' => 'role:penulis'], function () use ($router) {
+        $router->post('/{postId}/comments', 'CommentController@store');
+    });
 });
 
 // Public Post routes (read-only)
@@ -65,8 +69,15 @@ $router->group(['prefix' => 'posts'], function () use ($router) {
 
 // Protected Comment routes
 $router->group(['prefix' => 'comments', 'middleware' => 'auth:api'], function () use ($router) {
-    $router->patch('/{id}', 'CommentController@update');
-    $router->delete('/{id}', 'CommentController@destroy');
+    // Editor routes - PUT
+    $router->group(['middleware' => 'role:editor'], function () use ($router) {
+        $router->put('/{id}', 'CommentController@update');
+    });
+    
+    // Admin routes - DELETE
+    $router->group(['middleware' => 'role:admin'], function () use ($router) {
+        $router->delete('/{id}', 'CommentController@destroy');
+    });
 });
 
 // Public Comment routes (read-only)
@@ -75,9 +86,9 @@ $router->group(['prefix' => 'comments'], function () use ($router) {
 });
 
 // Admin routes
-$router->group(['prefix' => 'admin', 'middleware' => ['auth:api', 'role:editor']], function () use ($router) {
+$router->group(['prefix' => 'admin', 'middleware' => ['auth:api', 'role:admin']], function () use ($router) {
     $router->get('/users', 'UserController@index');
     $router->get('/users/{id}', 'UserController@show');
-    $router->patch('/users/{id}', 'UserController@update');
+    $router->put('/users/{id}', 'UserController@update');
     $router->delete('/users/{id}', 'UserController@destroy');
 });

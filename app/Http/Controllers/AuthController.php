@@ -22,7 +22,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'sometimes|string|in:reader,writer,editor'
+            'role' => 'sometimes|string|in:admin,penulis,pembaca,editor'
         ]);
 
         if ($validator->fails()) {
@@ -33,7 +33,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role ?? 'reader'
+            'role' => $request->role ?? 'pembaca'
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
